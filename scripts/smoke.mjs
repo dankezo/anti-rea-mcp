@@ -95,7 +95,7 @@ async function main() {
   // 3. list_signals ------------------------------------------------------------
   const ls = await callTool("list_signals", {});
   console.log("list_signals kinds ->", ls.parsed.signals.map((s) => s.kind).join(", "));
-  check("list_signals returns 7 kinds", ls.parsed.signals.length === 7);
+  check("list_signals returns 8 kinds", ls.parsed.signals.length === 8);
 
   // 4. herd-phase: synthetic shared-grid herd (AGENT-GUIDE checklist shape) ---
   const created = await callTool("create_signal", { kind: "herd-phase", sessionId: "smoke-herd" });
@@ -191,6 +191,42 @@ async function main() {
     "synthetic silent squat flags the room (AGENT-GUIDE checklist)",
     seatEval.parsed.flagged === true,
     `flagged=${seatEval.parsed.flagged}, currentRatio=${seatEval.parsed.currentRatio}`,
+  );
+
+  // 6b. room-guard: capacity required; a 30-bot silent burst flags pressure -------
+  const rgNoCap = await callTool("create_signal", { kind: "room-guard", sessionId: "smoke-guard-bad" });
+  check("room-guard without capacity is a clean tool error", rgNoCap.isError === true);
+  const guard = await callTool("create_signal", {
+    kind: "room-guard",
+    sessionId: "smoke-guard",
+    options: { capacity: 30 },
+  });
+  check("create_signal room-guard with capacity ok", !guard.isError);
+  for (let i = 0; i < 30; i++) {
+    const ts = T0 + i * 4_000;
+    await callTool("observe", {
+      sessionId: "smoke-guard",
+      type: "join",
+      identity: `guardbot-${i}`,
+      ts,
+      accountCreatedTs: ts - 3_600_000,
+    });
+    await callTool("observe", {
+      sessionId: "smoke-guard",
+      type: "leave",
+      identity: `guardbot-${i}`,
+      ts: ts + 3_600_000,
+    });
+  }
+  const guardEval = await callTool("evaluate", {
+    sessionId: "smoke-guard",
+    args: { asOfTs: T0 + 1_500_000 },
+  });
+  console.log("evaluate room-guard ->", JSON.stringify(guardEval.parsed));
+  check(
+    "synthetic silent squat wave flags room pressure (occupancy path)",
+    guardEval.parsed.flagged === true && guardEval.parsed.paths.occupancy === true,
+    `flagged=${guardEval.parsed.flagged}, paths=${JSON.stringify(guardEval.parsed.paths)}`,
   );
 
   // 7. close + use-after-close --------------------------------------------------

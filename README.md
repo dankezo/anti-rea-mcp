@@ -1,6 +1,6 @@
 # @dannyphan190/anti-rea-mcp
 
-A thin [MCP](https://modelcontextprotocol.io) (Model Context Protocol) server that wraps the antiRea library ([`@dannyphan190/anti-rea`](https://www.npmjs.com/package/@dannyphan190/anti-rea)) and exposes seven of its advisory signals - the coordinated-cohort family: herd phase, herd tightness, seat occupancy, activity phase, vote brigading, room hopping and reconnect storms - as **stateful sessions over stdio**. The library itself is broader than this wrapper: its core is per-identity dataset metering against bulk extraction and cloning, which stays in-process by design; only the signal family is exposed here, because signals are what an agent can exercise through tool calls.
+A thin [MCP](https://modelcontextprotocol.io) (Model Context Protocol) server that wraps the antiRea library ([`@dannyphan190/anti-rea`](https://www.npmjs.com/package/@dannyphan190/anti-rea)) and exposes eight of its advisory signals - the coordinated-cohort family: herd phase, herd tightness, seat occupancy, room guard, activity phase, vote brigading, room hopping and reconnect storms - as **stateful sessions over stdio**. The library itself is broader than this wrapper: its core is per-identity dataset metering against bulk extraction and cloning, which stays in-process by design; only the signal family is exposed here, because signals are what an agent can exercise through tool calls.
 
 It exists so an AI agent (or a developer driving one) can open a signal, feed it a synthetic or replayed event stream, and read the signal's verdict - for trying antiRea out, running the integration checklist shapes from the library's `AGENT-GUIDE.md`, and demoing what each signal does, without writing any host code first.
 
@@ -14,7 +14,7 @@ antiRea's signals are designed to live **inside the host application's process**
 
 | Tool | What it does |
 |---|---|
-| `list_signals` | Returns the 7 signal kinds, the library factory behind each, and the exact event shape `observe` expects per kind. |
+| `list_signals` | Returns the 8 signal kinds, the library factory behind each, and the exact event shape `observe` expects per kind. |
 | `create_signal` | Opens a session around one library signal instance. `{ kind, sessionId?, options? }` - `options` are forwarded verbatim to the factory; **seat-occupancy requires `options: { capacity }`**. Returns the `sessionId`. |
 | `observe` | Feeds one event into a session. Fill only the fields the kind uses (see the table below). Returns the library's observation object. |
 | `observe_reference` | Feeds `{ identity, ts }` to a **herd-tightness** session's `observeReference()` - the established legitimate population the cohort is standardised against. Other kinds return an error: they have no such method in the library. |

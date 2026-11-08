@@ -1,1 +1,28 @@
-{"$schema":"https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json","description":"antiRea advisory bot-abuse signals as stateful MCP sessions (evaluation and demos).","name":"io.github.dankezo/anti-rea-mcp","packages":[{"identifier":"@dannyphan190/anti-rea-mcp","registryBaseUrl":"https://registry.npmjs.org","registryType":"npm","runtimeArguments":[{"name":"-y","type":"named"}],"runtimeHint":"npx","transport":{"type":"stdio"},"version":"2.7.4"}],"repository":{"source":"github","url":"https://github.com/dankezo/antiRea"},"version":"2.7.4"}
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "description": "antiRea advisory bot-abuse signals as stateful MCP sessions (evaluation and demos).",
+  "name": "io.github.dankezo/anti-rea-mcp",
+  "packages": [
+    {
+      "identifier": "@dannyphan190/anti-rea-mcp",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "registryType": "npm",
+      "runtimeArguments": [
+        {
+          "name": "-y",
+          "type": "named"
+        }
+      ],
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "version": "2.8.0"
+    }
+  ],
+  "repository": {
+    "source": "github",
+    "url": "https://github.com/dankezo/antiRea"
+  },
+  "version": "2.8.0"
+}

@@ -3,10 +3,10 @@
  * anti-rea-mcp - a thin MCP (Model Context Protocol) server wrapping the
  * antiRea library (@dannyphan190/anti-rea).
  *
- * It exposes antiRea's seven advisory live-room / cohort signals as
+ * It exposes antiRea's eight advisory live-room / cohort signals as
  * stateful sessions over stdio:
  *
- *   list_signals     -> the 7 kinds and the event shape each one eats
+ *   list_signals     -> the 8 kinds and the event shape each one eats
  *   create_signal    -> open a session around one library signal instance
  *   observe          -> feed one event into a session's instance
  *   observe_reference-> feed the reference stream (herd-tightness only)
@@ -35,7 +35,7 @@ import antiRea from "@dannyphan190/anti-rea";
 
 // ---------------------------------------------------------------------------
 // Library surface (structural minimum - the real instance types differ per
-// kind, but every one of the seven exposes observe/evaluate with these
+// kind, but every one of the eight exposes observe/evaluate with these
 // shapes per dist/index.d.ts).
 // ---------------------------------------------------------------------------
 
@@ -67,6 +67,7 @@ function mustFactory(exportName: string): SignalFactory {
 const SIGNAL_KINDS = [
   "herd-phase",
   "seat-occupancy",
+  "room-guard",
   "activity-phase",
   "vote-brigading",
   "room-hop",
@@ -107,6 +108,19 @@ const SIGNAL_DEFS: SignalDef[] = [
       "REQUIRES create options { capacity: number } (the room's real seat count). " +
       "Population-only room state: share of seats held by <24 h-old accounts with zero activity. Names nobody. " +
       "evaluate args: { asOfTs?: number }.",
+  },
+  {
+    kind: "room-guard",
+    factoryName: "createRoomGuard",
+    create: mustFactory("createRoomGuard"),
+    event:
+      "{ type: 'join' | 'leave' | 'activity', identity: string, ts: number, accountCreatedTs?: number }.",
+    notes:
+      "REQUIRES create options { capacity: number } (the room's real seat count). The combined room " +
+      "guard: burst / sustained / churn join-pressure paths OR the seat-occupancy FAST/DRIP laws, on " +
+      "30 s ticks. Population-only room state; recommendStepUpForNewJoins speaks about NEW joins only - " +
+      "members already seated never receive a consequence. A squatter that chats even 1-2 messages " +
+      "escapes the occupancy leg (hole A1, declared open). evaluate args: { asOfTs?: number }.",
   },
   {
     kind: "activity-phase",
@@ -223,7 +237,7 @@ server.registerTool(
   {
     title: "List antiRea signal kinds",
     description:
-      "Returns the 7 signal kinds this server can open sessions for, the library factory behind each, " +
+      "Returns the 8 signal kinds this server can open sessions for, the library factory behind each, " +
       "and the exact event shape observe() expects per kind. No session needed.",
   },
   async () =>
@@ -245,8 +259,8 @@ server.registerTool(
     title: "Create a signal session",
     description:
       "Creates one antiRea signal instance (from @dannyphan190/anti-rea) and holds it in an in-memory " +
-      "session. kind is one of the 7 from list_signals. options are forwarded verbatim to the library " +
-      "factory - seat-occupancy REQUIRES options { capacity: number }; for all other kinds options may " +
+      "session. kind is one of the 8 from list_signals. options are forwarded verbatim to the library " +
+      "factory - seat-occupancy and room-guard REQUIRE options { capacity: number }; for all other kinds options may " +
       "be omitted (lab-frozen defaults - do not retune silently). Returns the sessionId to feed with observe.",
     inputSchema: {
       kind: z.enum(SIGNAL_KINDS),
@@ -258,19 +272,19 @@ server.registerTool(
       options: z
         .record(z.string(), z.unknown())
         .optional()
-        .describe("Factory options, forwarded verbatim (seat-occupancy: { capacity } is required)."),
+        .describe("Factory options, forwarded verbatim (seat-occupancy and room-guard: { capacity } is required)."),
     },
   },
   async ({ kind, sessionId, options }) => {
     try {
       const def = DEF_BY_KIND.get(kind)!;
-      if (kind === "seat-occupancy") {
+      if (kind === "seat-occupancy" || kind === "room-guard") {
         const capacity = (options as Record<string, unknown> | undefined)?.capacity;
         if (typeof capacity !== "number" || !Number.isFinite(capacity) || capacity <= 0) {
           return fail(
             new Error(
-              "seat-occupancy requires create options { capacity: <room seat count> } - " +
-                "createSeatOccupancySignal's capacity option is required in the library.",
+              kind + " requires create options { capacity: <room seat count> } - " +
+                "the capacity option is required in the library.",
             ),
           );
         }
@@ -295,7 +309,7 @@ server.registerTool(
     description:
       "Forwards one event to the session instance's observe(). Fill only the fields the session's kind " +
       "uses (see list_signals): herd-phase / activity-phase / vote-brigading / herd-tightness use " +
-      "{ identity, ts } (vote-brigading also takes accountCreatedTs); seat-occupancy uses " +
+      "{ identity, ts } (vote-brigading also takes accountCreatedTs); seat-occupancy and room-guard use " +
       "{ type, identity, ts, accountCreatedTs? }; room-hop uses { identity, room, ts }; " +
       "reconnect-storm uses { source, kind, ts }. ts is a millisecond timestamp. Returns the library's " +
       "observation object (e.g. { status, counted }). Feed ONE homogeneous stream per session.",
@@ -306,7 +320,7 @@ server.registerTool(
       type: z
         .enum(["join", "leave", "activity"])
         .optional()
-        .describe("seat-occupancy only: the seat-lifecycle event type."),
+        .describe("seat-occupancy / room-guard only: the seat-lifecycle event type."),
       room: z.string().optional().describe("room-hop only: the room joined."),
       source: z
         .string()
@@ -319,7 +333,7 @@ server.registerTool(
       accountCreatedTs: z
         .number()
         .optional()
-        .describe("seat-occupancy / vote-brigading: account creation time in ms, when known."),
+        .describe("seat-occupancy / room-guard / vote-brigading: account creation time in ms, when known."),
     },
   },
   async ({ sessionId, ...fields }) => {
