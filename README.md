@@ -2,6 +2,8 @@
 
 [![Listed on MCP Servers](https://img.shields.io/badge/Listed%20on-MCP%20Servers-blue)](https://mcpservers.org/servers/dankezo/antirea)
 
+[![Anti Rea MCP server](https://mcprush.com/badge/anti-rea-mcp/card.svg)](https://mcprush.com/to/anti-rea-mcp?ref=badge)
+
 **This is an MCP server** - a Model Context Protocol (MCP) server for the antiRea library ([`@dannyphan190/anti-rea`](https://www.npmjs.com/package/@dannyphan190/anti-rea)).
 
 - **Protocol:** Model Context Protocol (MCP) - https://modelcontextprotocol.io
