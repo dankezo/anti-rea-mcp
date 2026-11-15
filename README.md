@@ -7,12 +7,16 @@
 - **Protocol:** Model Context Protocol (MCP) - https://modelcontextprotocol.io
 - **Transport:** stdio - the server reads JSON-RPC from stdin and writes to stdout; startup logs go to stderr
 - **Built with:** the official `@modelcontextprotocol/sdk` for TypeScript
-- **Version:** 2.8.0, wrapping `@dannyphan190/anti-rea` 2.8.0
+- **Version:** 2.8.2, wrapping `@dannyphan190/anti-rea` 2.8.1
 - **Exposes:** 6 MCP tools - `list_signals`, `create_signal`, `observe`, `observe_reference`, `evaluate`, `close_signal` - that run antiRea's eight advisory signal kinds as stateful sessions
 
 antiRea is a server-side TypeScript library that meters dataset access per identity and flags coordinated bot abuse - bulk extraction crews, scheduler-driven herds, seat squatting - for web apps and SaaS. This MCP server exposes the library's coordinated-cohort signal family - herd phase, herd tightness, seat occupancy, room guard, activity phase, vote brigading, room hopping and reconnect storms - as **stateful sessions** an MCP client can drive with tool calls. The library's core - per-identity dataset metering against bulk extraction and cloning - stays in-process by design and is not part of this server; only the signal family is exposed here, because signals are what an agent can exercise through tool calls.
 
 It exists so an AI agent (or a developer driving one) can open a signal, feed it a synthetic or replayed event stream, and read the signal's verdict - for trying antiRea out, running the integration checklist shapes from the library's `AGENT-GUIDE.md`, and demoing what each signal does, without writing any host code first.
+
+## The library's current release
+
+The antiRea SDK itself is now at **2.9.3** - 974 automated tests (972 passing, 0 failing, 2 skipped) on Linux x64 with Node 24.22.1, release gate 11/11. New in 2.9.3: a shadow decoy graph module - in the pre-registered lab record, a referential-integrity filter removed 720/720 standalone decoys while 0/720 shadow-graph decoys leaked, and the decoy-free control lost 0 of 24,000 real records - plus issued-at checks on signed tokens, a null-request guard for the Web Bot Auth verifier, and host vocabularies for decoy documents. This MCP wrapper remains at 2.8.2 and wraps SDK 2.8.1: it exposes the signal family for evaluation and demos, and its version is independent of the SDK's release line.
 
 ## Run it
 
