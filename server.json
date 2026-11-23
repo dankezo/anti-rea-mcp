@@ -17,12 +17,12 @@
       "transport": {
         "type": "stdio"
       },
-      "version": "2.8.0"
+      "version": "3.3.2"
     }
   ],
   "repository": {
     "source": "github",
     "url": "https://github.com/dankezo/antiRea"
   },
-  "version": "2.8.0"
+  "version": "3.3.2"
 }
