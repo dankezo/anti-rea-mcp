@@ -4,7 +4,7 @@
     "anti-rea-mcp": "./dist/index.js"
   },
   "dependencies": {
-    "@dannyphan190/anti-rea": "2.8.0",
+    "@dannyphan190/anti-rea": "2.8.1",
     "@modelcontextprotocol/sdk": "^1.32.2",
     "zod": "^4.0.0"
   },
@@ -43,5 +43,5 @@
     "start": "node dist/index.js"
   },
   "type": "module",
-  "version": "2.8.0"
+  "version": "2.8.2"
 }
